@@ -10,8 +10,6 @@ const Feedback = require('./util/feedback');
 const Cache = require('./util/cache');
 
 const app = express();
-const dataHandle = new DataStatistics();
-global.dataStatistics = dataHandle;
 global.feedback = new Feedback();
 global.cache = new Cache();
 
@@ -29,9 +27,6 @@ jsonFile.readFile('data/cookie.json')
     global.userCookie = {}
   });
 
-// 每5分钟存一下数据
-setInterval(() => dataHandle.saveInfo(), 60000 * 5);
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -41,9 +36,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.use((req, res, next) => dataHandle.record(req, res, next));
-
 fs.readdirSync(path.join(__dirname, 'routes')).reverse().forEach(file => {
   const filename = file.replace(/\.js$/, '');
   app.use(`/${filename}`, (req, res, next) => {
